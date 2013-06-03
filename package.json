@@ -1,0 +1,28 @@
+{
+  "name": "alamid-signal",
+  "version": "0.0.0",
+  "description": "JavaScript signals",
+  "main": "./lib/Signal.js",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha -R spec"
+  },
+  "keywords": [
+    "signal",
+    "stream",
+    "eventemitter",
+    "event",
+    "promise"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "1.x",
+    "chai": "1.x",
+    "sinon-chai": "2.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peerigon/alamid-signal.git"
+  },
+  "author": "peerigon <developers@peerigon.com>",
+  "license": "MIT"
+}
