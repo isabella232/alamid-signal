@@ -1,7 +1,6 @@
 "use strict";
 
 var chai = require("chai"),
-    sinon = require("sinon"),
     Signal = require("../" + require("../package.json").main),
     EventEmitter = require("events").EventEmitter,
     expect = chai.expect;
@@ -13,6 +12,10 @@ describe("Signal", function () {
 
     beforeEach(function () {
         signal = new Signal();
+    });
+
+    it("should be an instance of Signal", function () {
+        expect(signal).to.be.an.instanceof(Signal);
     });
 
     it("should be an instance of EventEmitter", function () {
