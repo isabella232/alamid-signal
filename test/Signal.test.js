@@ -48,6 +48,14 @@ describe("Signal (instance)", function () {
         expect(signal()).to.equal(true);
     });
 
+    describe(".constructor", function () {
+
+        it("should be Signal", function () {
+            expect(signal.constructor).to.equal(Signal);
+        });
+
+    });
+
     describe(".notify()", function () {
 
         it("should call the given functions after a value has been set", function () {
