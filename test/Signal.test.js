@@ -7,6 +7,18 @@ var chai = require("chai"),
 
 chai.use(require("sinon-chai"));
 
+describe("Signal", function () {
+
+    it("should return a new signal", function () {
+        expect(new Signal()).to.be.a("function");
+    });
+
+    it("should returm a new signal with the given value", function () {
+        expect(new Signal("hello")()).to.equal("hello");
+    });
+
+});
+
 describe("Signal (instance)", function () {
     var signal;
 
@@ -87,7 +99,15 @@ describe("Signal (instance)", function () {
             expect(a.firstCall.args[0]).to.equal(b.firstCall.args[0]);
         });
 
-        it("should already reflect the new value when the change event occurs", function (done) {
+        it("should also accept other signals that will adopt the new value", function () {
+            var otherSignal = new Signal();
+
+            signal.notify(otherSignal);
+            signal("hello otherSignal");
+            expect(otherSignal()).to.equal("hello otherSignal");
+        });
+
+        it("should reflect already the new value when the change event occurs", function (done) {
             signal.notify(function () {
                 expect(signal()).to.equal("What up?");
                 done();
@@ -113,6 +133,18 @@ describe("Signal (instance)", function () {
 
             expect(a).to.not.have.been.called;
             expect(b).to.not.have.been.called;
+        });
+
+        it("should also remove the given signals", function () {
+            var otherSignal1 = new Signal("hi"),
+                otherSignal2 = new Signal("hi");
+
+            signal.notify(otherSignal1, otherSignal2);
+            signal.unnotify(otherSignal1, otherSignal2);
+
+            signal("hello");
+            expect(otherSignal1()).to.equal("hi");
+            expect(otherSignal1()).to.equal("hi");
         });
 
         it("should not remove other listeners", function () {
