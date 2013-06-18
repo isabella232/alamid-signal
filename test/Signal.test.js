@@ -1,90 +1,168 @@
 "use strict";
 
 var chai = require("chai"),
+    sinon = require("sinon"),
     Signal = require("../" + require("../package.json").main),
-    EventEmitter = require("events").EventEmitter,
     expect = chai.expect;
 
 chai.use(require("sinon-chai"));
 
-describe("Signal", function () {
+describe("Signal (instance)", function () {
     var signal;
 
     beforeEach(function () {
         signal = new Signal();
     });
 
-    it("should be an instance of Signal", function () {
-        expect(signal).to.be.an.instanceof(Signal);
+    it("should be an instance of Function", function () {
+        expect(signal).to.be.an.instanceof(Function);
     });
 
-    it("should be an instance of EventEmitter", function () {
-        expect(signal).to.be.an.instanceof(EventEmitter);
+    it("should return undefined when calling it initially", function () {
+        expect(signal()).to.be.an("undefined");
     });
 
-    describe(".get() when no data has been set yet", function () {
+    it("should return the new value when calling it with a value", function () {
+        var obj = {};
 
-        it("should return undefined", function () {
-            expect(signal.get()).to.be.an("undefined");
+        expect(signal(2)).to.equal(2);
+        expect(signal(obj)).to.equal(obj);
+    });
+
+    it("should return the last set value when calling it with no arguments", function () {
+        signal("Ahoy!");
+        expect(signal()).to.equal("Ahoy!");
+        signal(true);
+        expect(signal()).to.equal(true);
+    });
+
+    describe(".notify()", function () {
+
+        it("should call the given functions after a value has been set", function () {
+            var a = sinon.spy(),
+                b = sinon.spy();
+
+            signal.notify(a, b);
+            expect(a).to.not.have.been.called;
+            expect(b).to.not.have.been.called;
+
+            signal("Ahoy!");
+
+            expect(a).to.have.been.called;
+            expect(b).to.have.been.called;
         });
 
-    });
-
-    describe(".set()", function () {
-
-        it("should return this", function () {
-            expect(signal.set("hello")).to.equal(signal);
-        });
-
-    });
-
-    describe(".get() when there has already been data set", function () {
-
-        beforeEach(function () {
-            signal.set("Ahoy!");
-        });
-
-        it("should return the last set data", function () {
-            var obj = {};
-
-            expect(signal.get()).to.equal("Ahoy!");
-            signal.set("Arrr!");
-            expect(signal.get()).to.equal("Arrr!");
-            signal.set(true);
-            expect(signal.get()).to.equal(true);
-            signal.set(obj);
-            expect(signal.get()).to.equal(obj);
-        });
-
-    });
-
-    describe(".on('change')", function () {
-
-        it("should be emitted by calling .set()", function (done) {
-            signal.on("change", function () {
+        it("should call the listeners with a proper change event-object containing the name, target, oldValue and newValue", function (done) {
+            signal(false);
+            signal.notify(function (event) {
+                expect(event).to.have.property("name", "change");
+                expect(event).to.have.property("target", signal);
+                expect(event).to.have.property("oldValue", false);
+                expect(event).to.have.property("newValue", true);
                 done();
             });
-            signal.set("La vie en rose");
+            signal(true);
         });
 
-        it("should call the handler with an event-object containing the oldValue, newValue, name, target", function (done) {
-            signal.set("Ahoy!");
-            signal.on("change", function (event) {
-                expect(event.name).to.equal("change");
-                expect(event.target).to.equal(signal);
-                expect(event.oldValue).to.equal("Ahoy!");
-                expect(event.newValue).to.equal("What up?");
-                done();
+        it("should notify the listeners in the given order", function () {
+            var called = [];
+
+            signal.notify(function () {
+                called.push(1);
             });
-            signal.set("What up?");
+            signal.notify(function () {
+                called.push(2);
+            });
+            signal(true);
+            expect(called).to.eql([1, 2]);
+        });
+
+        it("should call all listeners with the same event object", function () {
+            var a = sinon.spy(),
+                b = sinon.spy();
+
+            signal.notify(a);
+            signal.notify(b);
+            signal(true);
+            expect(a.firstCall.args[0]).to.equal(b.firstCall.args[0]);
         });
 
         it("should already reflect the new value when the change event occurs", function (done) {
-            signal.on("change", function () {
-                expect(signal.get()).to.equal("What up?");
+            signal.notify(function () {
+                expect(signal()).to.equal("What up?");
                 done();
             });
-            signal.set("What up?");
+            signal("What up?");
+        });
+
+        it("should be chainable", function () {
+            expect(signal.notify(function () {})).to.equal(signal);
+        });
+
+    });
+
+    describe(".unnotify()", function () {
+
+        it("should remove the given listeners from notification", function () {
+            var a = sinon.spy(),
+                b = sinon.spy();
+
+            signal.notify(a, b);
+            signal.unnotify(a, b);
+            signal("hello");
+
+            expect(a).to.not.have.been.called;
+            expect(b).to.not.have.been.called;
+        });
+
+        it("should not remove other listeners", function () {
+            var a = sinon.spy(),
+                b = sinon.spy();
+
+            signal.notify(a, b);
+            signal.unnotify(a);
+            signal("hello");
+
+            expect(b).to.have.been.called;
+        });
+
+        it("should do nothing if the supplied listener has never been added", function () {
+            expect(function () {
+                signal.unnotify(function () {});
+            }).to.not.throw();
+        });
+
+        it("should be chainable", function () {
+            function a() {}
+
+            signal.notify(a);
+
+            expect(signal.unnotify(a)).to.equal(signal);
+        });
+
+    });
+
+    describe(".dispose()", function () {
+
+        it("should delete the internal value", function () {
+            var obj = {};
+
+            signal(obj);
+            signal.dispose();
+
+            expect(signal()).to.equal(undefined);
+        });
+
+        it("should remove all listeners", function () {
+            var a = sinon.spy(),
+                b = sinon.spy();
+
+            signal.notify(a, b);
+            signal.dispose();
+            signal(true);
+
+            expect(a).to.not.have.been.called;
+            expect(b).to.not.have.been.called;
         });
 
     });
