@@ -34,13 +34,6 @@ describe("Signal (instance)", function () {
         expect(signal()).to.be.an("undefined");
     });
 
-    it("should return the new value when calling it with a value", function () {
-        var obj = {};
-
-        expect(signal(2)).to.equal(2);
-        expect(signal(obj)).to.equal(obj);
-    });
-
     it("should return the last set value when calling it with no arguments", function () {
         signal("Ahoy!");
         expect(signal()).to.equal("Ahoy!");
@@ -178,6 +171,53 @@ describe("Signal (instance)", function () {
             signal.notify(a);
 
             expect(signal.unnotify(a)).to.equal(signal);
+        });
+
+    });
+
+    describe(".set()", function () {
+
+        it("should just return the new value by default", function () {
+            expect(signal.set(2)).to.equal(2);
+        });
+
+        it("should be called when a new value is set", function () {
+            signal.set = sinon.spy();
+            signal("hey ho");
+
+            expect(signal.set).to.have.been.called;
+        });
+
+        it("should be called with the new value", function () {
+            signal.set = sinon.spy();
+            signal("hey ho");
+
+            expect(signal.set).to.have.been.calledWith("hey ho");
+        });
+
+        it("should be called before the new value is set", function (done) {
+            signal.set = function () {
+                expect(signal()).to.equal(undefined);
+                done();
+            };
+
+            signal("hello");
+        });
+
+        it("should override the new value", function () {
+            var actualEvent;
+
+            signal.set = function () {
+               return "hey";
+            };
+
+            signal.notify(function (event) {
+                actualEvent = event;
+            });
+
+            signal("ho");
+            expect(signal()).to.equal("hey");
+            expect(actualEvent.newValue).to.equal("hey");
         });
 
     });
