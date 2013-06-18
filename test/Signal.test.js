@@ -17,6 +17,44 @@ describe("Signal", function () {
         expect(new Signal("hello")()).to.equal("hello");
     });
 
+    describe(".totalListeners", function () {
+        var signal1,
+            signal2;
+
+        function listener() {}
+
+        before(function () {
+            signal1 = new Signal();
+            signal2 = new Signal();
+        });
+
+        it("should be 0 by default", function () {
+            expect(Signal.totalListeners).to.equal(0);
+        });
+
+        it("should increase by the number of listener that have been added to an instance", function () {
+            signal1.notify(listener, function () {});
+            signal2.notify(listener, listener, function () {});
+
+            expect(Signal.totalListeners).to.equal(5);
+        });
+
+        it("should decrease by the number of listeners that have been removed on an instance", function () {
+            signal1.unnotify(listener);
+            signal2.unnotify(listener);
+
+            expect(Signal.totalListeners).to.equal(2);
+        });
+
+        it("should decrease by the number of listeners that have been disposed", function () {
+            signal1.dispose();
+            signal2.dispose();
+
+            expect(Signal.totalListeners).to.equal(0);
+        });
+
+    });
+
 });
 
 describe("Signal (instance)", function () {
@@ -146,6 +184,16 @@ describe("Signal (instance)", function () {
             signal("hello");
             expect(otherSignal1()).to.equal("hi");
             expect(otherSignal1()).to.equal("hi");
+        });
+
+        it("should also work if the given listener has been added more than once", function () {
+            var listener = sinon.spy();
+
+            signal.notify(listener, listener, listener);
+            signal.unnotify(listener);
+            signal("hello");
+
+            expect(listener).to.not.have.been.called;
         });
 
         it("should not remove other listeners", function () {
