@@ -13,7 +13,7 @@ describe("Signal", function () {
         expect(new Signal()).to.be.a("function");
     });
 
-    it("should returm a new signal with the given value", function () {
+    it("should return a new signal with the given value", function () {
         expect(new Signal("hello")()).to.equal("hello");
     });
 
@@ -80,6 +80,14 @@ describe("Signal (instance)", function () {
     });
 
     describe(".constructor", function () {
+
+        it("should be Signal", function () {
+            expect(signal.constructor).to.equal(Signal);
+        });
+
+    });
+
+    describe(".Class", function () {
 
         it("should be Signal", function () {
             expect(signal.constructor).to.equal(Signal);
