@@ -32,7 +32,7 @@ describe("Signal", function () {
             expect(Signal.totalListeners).to.equal(0);
         });
 
-        it("should increase by the number of listener that have been added to an instance", function () {
+        it("should increase by the number of listeners that have been added to an instance", function () {
             signal1.notify(listener, function () {});
             signal2.notify(listener, listener, function () {});
 
@@ -231,28 +231,24 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".set()", function () {
-
-        it("should just return the new value by default", function () {
-            expect(signal.set(2)).to.equal(2);
-        });
+    describe(".setter()", function () {
 
         it("should be called when a new value is set", function () {
-            signal.set = sinon.spy();
+            signal.setter = sinon.spy();
             signal("hey ho");
 
-            expect(signal.set).to.have.been.called;
+            expect(signal.setter).to.have.been.called;
         });
 
         it("should be called with the new value", function () {
-            signal.set = sinon.spy();
+            signal.setter = sinon.spy();
             signal("hey ho");
 
-            expect(signal.set).to.have.been.calledWith("hey ho");
+            expect(signal.setter).to.have.been.calledWith("hey ho");
         });
 
         it("should be called before the new value is set", function (done) {
-            signal.set = function () {
+            signal.setter = function () {
                 expect(signal()).to.equal(undefined);
                 done();
             };
@@ -263,7 +259,7 @@ describe("Signal (instance)", function () {
         it("should override the new value", function () {
             var actualEvent;
 
-            signal.set = function () {
+            signal.setter = function () {
                return "hey";
             };
 
