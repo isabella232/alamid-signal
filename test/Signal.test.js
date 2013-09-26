@@ -111,13 +111,14 @@ describe("Signal (instance)", function () {
             expect(b).to.have.been.called;
         });
 
-        it("should call the listeners with a proper change event-object containing the name, target, oldValue and newValue", function (done) {
+        it("should call the listeners with a proper change event-object containing the target, oldValue and newValue", function (done) {
             signal(false);
             signal.notify(function (event) {
-                expect(event).to.have.property("name", "change");
-                expect(event).to.have.property("target", signal);
-                expect(event).to.have.property("oldValue", false);
-                expect(event).to.have.property("newValue", true);
+                expect(event).to.eql({
+                    target: signal,
+                    oldValue: false,
+                    newValue: true
+                });
                 done();
             });
             signal(true);
