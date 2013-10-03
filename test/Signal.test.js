@@ -115,6 +115,7 @@ describe("Signal (instance)", function () {
             signal(false);
             signal.notify(function (event) {
                 expect(event).to.eql({
+                    type: "change",
                     target: signal,
                     oldValue: false,
                     newValue: true
