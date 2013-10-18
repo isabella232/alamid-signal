@@ -1,7 +1,7 @@
 {
   "name": "alamid-signal",
   "version": "0.2.0",
-  "description": "Simple observables in JavaScript",
+  "description": "Simple observable signal",
   "main": "./lib/Signal.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha -R spec"
@@ -14,7 +14,8 @@
     "event",
     "js-signals",
     "signals",
-    "pub/sub",
+    "pub",
+    "sub",
     "publish",
     "subscribe",
     "observer",

@@ -17,7 +17,7 @@ describe("Signal", function () {
         expect(new Signal("hello")()).to.equal("hello");
     });
 
-    describe(".totalListeners", function () {
+    describe(".totalListeners: Number", function () {
         var signal1,
             signal2;
 
@@ -55,7 +55,7 @@ describe("Signal", function () {
 
     });
 
-    describe(".use()", function () {
+    describe(".use(plugin: Function, config: Object?): Signal", function () {
         var plugin,
             config;
 
@@ -122,15 +122,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".Class", function () {
-
-        it("should be Signal", function () {
-            expect(signal.constructor).to.equal(Signal);
-        });
-
-    });
-
-    describe(".notify()", function () {
+    describe(".notify(listener1: Function, listener2: Function, ...): Signal", function () {
 
         it("should call the given functions after a value has been set", function () {
             var a = sinon.spy(),
@@ -144,6 +136,17 @@ describe("Signal (instance)", function () {
 
             expect(a).to.have.been.called;
             expect(b).to.have.been.called;
+        });
+
+        it("should only call the listeners when the value actually changes", function () {
+            var a = sinon.spy();
+
+            signal.notify(a);
+
+            signal(true);
+            signal(true);
+
+            expect(a).to.have.been.calledOnce;
         });
 
         it("should call the listeners with a proper change event-object containing the target, oldValue and newValue", function (done) {
@@ -205,7 +208,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".unnotify()", function () {
+    describe(".unnotify(listener1: Function, listener2: Function, ...): Signal", function () {
 
         it("should remove the given listeners from notification", function () {
             var a = sinon.spy(),
@@ -268,7 +271,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".setter()", function () {
+    describe(".setter: Function", function () {
 
         it("should be called when a new value is set", function () {
             signal.setter = sinon.spy();
@@ -311,7 +314,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".dispose()", function () {
+    describe(".dispose(): undefined", function () {
 
         it("should delete the internal value", function () {
             var obj = {};
