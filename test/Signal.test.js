@@ -17,7 +17,7 @@ describe("Signal", function () {
         expect(new Signal("hello")()).to.equal("hello");
     });
 
-    describe(".totalListeners: Number", function () {
+    describe(".totalListeners", function () {
         var signal1,
             signal2;
 
@@ -55,7 +55,7 @@ describe("Signal", function () {
 
     });
 
-    describe(".use(plugin: Function, config: Object?): Signal", function () {
+    describe(".use(plugin, config?)", function () {
         var plugin,
             config;
 
@@ -122,7 +122,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".notify(listener1: Function, listener2: Function, ...): Signal", function () {
+    describe(".notify(func1, func2, ...)", function () {
 
         it("should call the given functions after a value has been set", function () {
             var a = sinon.spy(),
@@ -208,7 +208,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".unnotify(listener1: Function, listener2: Function, ...): Signal", function () {
+    describe(".unnotify(func1, func2, ...)", function () {
 
         it("should remove the given listeners from notification", function () {
             var a = sinon.spy(),
@@ -279,7 +279,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".setter: Function", function () {
+    describe(".setter", function () {
 
         it("should be called when a new value is set", function () {
             signal.setter = sinon.spy();
@@ -322,7 +322,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".dispose(): undefined", function () {
+    describe(".dispose()", function () {
 
         it("should delete the internal value", function () {
             var obj = {};
