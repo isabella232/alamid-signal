@@ -261,6 +261,14 @@ describe("Signal (instance)", function () {
             }).to.not.throw();
         });
 
+        it("should be possible to call unnotify on a signal after it has been disposed", function () {
+            var a = sinon.spy();
+
+            signal.notify(a);
+            signal.dispose();
+            signal.unnotify(a);
+        });
+
         it("should be chainable", function () {
             function a() {}
 
