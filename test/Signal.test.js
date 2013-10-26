@@ -5,6 +5,7 @@ var chai = require("chai"),
     Signal = require("../" + require("../package.json").main),
     expect = chai.expect;
 
+chai.Assertion.includeStack = true;
 chai.use(require("sinon-chai"));
 
 describe("Signal", function () {
@@ -149,15 +150,12 @@ describe("Signal (instance)", function () {
             expect(a).to.have.been.calledOnce;
         });
 
-        it("should call the listeners with a proper change event-object containing the target, oldValue and newValue", function (done) {
+        it("should call the listeners with the new value, the old value and the signal which changed", function (done) {
             signal(false);
-            signal.notify(function (event) {
-                expect(event).to.eql({
-                    type: "change",
-                    target: signal,
-                    oldValue: false,
-                    newValue: true
-                });
+            signal.notify(function (newValue, oldValue, target) {
+                expect(newValue).to.equal(true);
+                expect(oldValue).to.equal(false);
+                expect(target).to.equal(signal);
                 done();
             });
             signal(true);
@@ -176,16 +174,6 @@ describe("Signal (instance)", function () {
             expect(called).to.eql([1, 2]);
         });
 
-        it("should call all listeners with the same event object", function () {
-            var a = sinon.spy(),
-                b = sinon.spy();
-
-            signal.notify(a);
-            signal.notify(b);
-            signal(true);
-            expect(a.firstCall.args[0]).to.equal(b.firstCall.args[0]);
-        });
-
         it("should also accept other signals that will adopt the new value", function () {
             var otherSignal = new Signal();
 
@@ -194,7 +182,7 @@ describe("Signal (instance)", function () {
             expect(otherSignal()).to.equal("hello otherSignal");
         });
 
-        it("should reflect already the new value when the change event occurs", function (done) {
+        it("should reflect already the new value when the change occured", function (done) {
             signal.notify(function () {
                 expect(signal()).to.equal("What up?");
                 done();
@@ -305,19 +293,19 @@ describe("Signal (instance)", function () {
         });
 
         it("should override the new value", function () {
-            var actualEvent;
+            var value;
 
             signal.setter = function () {
                return "hey";
             };
 
-            signal.notify(function (event) {
-                actualEvent = event;
+            signal.notify(function (newValue) {
+                value = newValue;
             });
 
             signal("ho");
             expect(signal()).to.equal("hey");
-            expect(actualEvent.newValue).to.equal("hey");
+            expect(value).to.equal("hey");
         });
 
     });
