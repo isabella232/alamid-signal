@@ -318,7 +318,7 @@ describe("Signal (instance)", function () {
             signal(obj);
             signal.dispose();
 
-            expect(signal()).to.equal(undefined);
+            expect(signal()).to.equal(null);
         });
 
         it("should remove all listeners", function () {
