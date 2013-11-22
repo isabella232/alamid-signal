@@ -214,6 +214,7 @@ describe("Signal (instance)", function () {
                 called.push(2);
             });
             signal(true);
+
             expect(called).to.eql([1, 2]);
         });
 
@@ -222,15 +223,51 @@ describe("Signal (instance)", function () {
 
             signal.subscribe(otherSignal);
             signal("hello otherSignal");
+
             expect(otherSignal()).to.equal("hello otherSignal");
         });
 
-        it("should reflect already the new value when the change occured", function (done) {
+        it("should reflect already the new value when the change occurred", function (done) {
             signal.subscribe(function () {
                 expect(signal()).to.equal("What up?");
                 done();
             });
             signal("What up?");
+        });
+
+        it("should not trigger if the new value and the old value are both primitives and equal", function () {
+            var listener = sinon.spy();
+
+            signal.subscribe(listener);
+            signal(undefined);
+            signal(true);
+            signal(true);
+            signal("hi");
+            signal("hi");
+            signal(0);
+            signal(0);
+
+            expect(listener).to.have.been.calledThrice;
+        });
+
+        it("should trigger every time a non-primitive value is passed", function () {
+            var listener = sinon.spy(),
+                arr = [],
+                func = function () {},
+                regex = /asd/,
+                obj = {};
+
+            signal.subscribe(listener);
+            signal(obj);
+            signal(obj);
+            signal(arr);
+            signal(arr);
+            signal(func);
+            signal(func);
+            signal(regex);
+            signal(regex);
+
+            expect(listener.callCount).to.equal(8);
         });
 
         it("should be chainable", function () {
