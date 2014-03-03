@@ -342,6 +342,43 @@ describe("Signal (instance)", function () {
 
     });
 
+    describe(".pipe(listener)", function () {
+        var otherSignal;
+
+        beforeEach(function () {
+            otherSignal = new Signal();
+        });
+
+        it("should add the given function as listener to the current signal", function () {
+            signal.pipe(otherSignal);
+            signal("hello otherSignal");
+
+            expect(otherSignal()).to.equal("hello otherSignal");
+        });
+
+        it("should not be chainable and return the given function (in contrast to .notify())", function () {
+            expect(signal.pipe(otherSignal)).to.equal(otherSignal);
+        });
+
+        it("should be possible to chain multiple signals", function () {
+            var anotherSignal = new Signal();
+
+            function add(num) {
+                return num + 1;
+            }
+
+            otherSignal.setter = add;
+            anotherSignal.setter = add;
+
+            signal.pipe(otherSignal).pipe(anotherSignal);
+            signal(0);
+
+            expect(otherSignal()).to.equal(1);
+            expect(anotherSignal()).to.equal(2);
+        });
+
+    });
+
     /*describe(".trigger()", function () {
 
         it("should manually notify all listeners", function () {
