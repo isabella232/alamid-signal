@@ -92,24 +92,24 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".setter", function () {
+    describe(".transform", function () {
 
         it("should be called when a new value is set", function () {
-            signal.setter = sinon.spy();
+            signal.transform = sinon.spy();
             signal("hey ho");
 
-            expect(signal.setter).to.have.been.called;
+            expect(signal.transform).to.have.been.called;
         });
 
         it("should be called with the new value", function () {
-            signal.setter = sinon.spy();
+            signal.transform = sinon.spy();
             signal("hey ho");
 
-            expect(signal.setter).to.have.been.calledWith("hey ho");
+            expect(signal.transform).to.have.been.calledWith("hey ho");
         });
 
         it("should be called before the new value is set", function (done) {
-            signal.setter = function () {
+            signal.transform = function () {
                 expect(signal()).to.equal(undefined);
                 done();
             };
@@ -120,7 +120,7 @@ describe("Signal (instance)", function () {
         it("should override the new value", function () {
             var value;
 
-            signal.setter = function () {
+            signal.transform = function () {
                return "hey";
             };
 
@@ -338,8 +338,8 @@ describe("Signal (instance)", function () {
                 return num + 1;
             }
 
-            otherSignal.setter = add;
-            anotherSignal.setter = add;
+            otherSignal.transform = add;
+            anotherSignal.transform = add;
 
             signal.pipe(otherSignal).pipe(anotherSignal);
             signal(0);
