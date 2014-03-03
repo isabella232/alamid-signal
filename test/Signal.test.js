@@ -342,7 +342,7 @@ describe("Signal (instance)", function () {
 
     });
 
-    describe(".trigger()", function () {
+    /*describe(".trigger()", function () {
 
         it("should manually notify all listeners", function () {
             var a = sinon.spy();
@@ -359,7 +359,7 @@ describe("Signal (instance)", function () {
             expect(signal.trigger()).to.equal(signal);
         });
 
-    });
+    });*/
 
     describe(".dispose()", function () {
 
