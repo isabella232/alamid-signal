@@ -60,35 +60,6 @@ describe("Signal", function () {
 
     });
 
-    describe(".use(plugin, config?)", function () {
-        var plugin,
-            config;
-
-        beforeEach(function () {
-            plugin = sinon.spy();
-            config = {};
-        });
-
-        it("should provide a plugin-interface", function () {
-            Signal.use(plugin, config);
-            expect(plugin).to.have.been.calledWith(Signal, config);
-        });
-
-        it("should be usable on other objects too", function () {
-            var otherObj = {
-                use: Signal.use
-            };
-
-            otherObj.use(plugin);
-            expect(plugin).to.have.been.calledWith(otherObj);
-        });
-
-        it("should be chainable", function () {
-            expect(Signal.use(function () {})).to.equal(Signal);
-        });
-
-    });
-
 });
 
 describe("Signal (instance)", function () {
