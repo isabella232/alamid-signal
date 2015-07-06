@@ -1,9 +1,9 @@
 "use strict";
 
-var chai = require("chai"),
-    sinon = require("sinon"),
-    Signal = require("../" + require("../package.json").main),
-    expect = chai.expect;
+var chai = require("chai");
+var sinon = require("sinon");
+var Signal = require("../" + require("../package.json").main);
+var expect = chai.expect;
 
 chai.Assertion.includeStack = true;
 chai.use(require("sinon-chai"));
@@ -19,8 +19,8 @@ describe("Signal", function () {
     });
 
     describe(".totalListeners", function () {
-        var signal1,
-            signal2;
+        var signal1;
+        var signal2;
 
         function listener() {}
 
@@ -35,19 +35,19 @@ describe("Signal", function () {
 
         it("should increase by the number of listeners that have been added to an instance", function () {
             // even if the same instance gets added three times, the listener count will still increase by three
-            signal1.notify(listener);
-            signal1.notify(listener);
-            signal1.notify(listener);
-            signal1.notify(function () {});
-            signal1.notify(function () {});
+            signal1.pipe(listener);
+            signal1.pipe(listener);
+            signal1.pipe(listener);
+            signal1.pipe(function () {});
+            signal1.pipe(function () {});
 
             expect(Signal.totalListeners).to.equal(5);
         });
 
         it("should decrease by the number of listeners that have been removed on an instance", function () {
-            signal1.unnotify(listener);
+            signal1.unpipe(listener);
             expect(Signal.totalListeners).to.equal(4);
-            signal2.unnotify(listener); // has never been added as listener
+            signal2.unpipe(listener); // has never been added as listener
             expect(Signal.totalListeners).to.equal(4);
         });
 
@@ -124,191 +124,13 @@ describe("Signal (instance)", function () {
                return "hey";
             };
 
-            signal.notify(function (newValue) {
+            signal.pipe(function (newValue) {
                 value = newValue;
             });
 
             signal("ho");
             expect(signal()).to.equal("hey");
             expect(value).to.equal("hey");
-        });
-
-    });
-
-    describe(".notify(listener)", function () {
-
-        it("should call the given function after a value has been set", function () {
-            var a = sinon.spy(),
-                b = sinon.spy();
-
-            signal.notify(a);
-            signal.notify(b);
-
-            expect(a).to.not.have.been.called;
-            expect(b).to.not.have.been.called;
-
-            signal("Ahoy!");
-
-            expect(a).to.have.been.called;
-            expect(b).to.have.been.called;
-        });
-
-        it("should only call the listeners when the value actually changes", function () {
-            var a = sinon.spy();
-
-            signal.notify(a);
-
-            signal(true);
-            signal(true);
-
-            expect(a).to.have.been.calledOnce;
-        });
-
-        it("should call the listeners with the new value, the old value and the signal which changed", function (done) {
-            signal(false);
-            signal.notify(function (newValue, oldValue, target) {
-                expect(newValue).to.equal(true);
-                expect(oldValue).to.equal(false);
-                expect(target).to.equal(signal);
-                done();
-            });
-            signal(true);
-        });
-
-        it("should subscribe the listeners in the given order", function () {
-            var called = [];
-
-            signal.notify(function () {
-                called.push(1);
-            });
-            signal.notify(function () {
-                called.push(2);
-            });
-            signal(true);
-
-            expect(called).to.eql([1, 2]);
-        });
-
-        it("should also accept other signals that will adopt the new value", function () {
-            var otherSignal = new Signal();
-
-            signal.notify(otherSignal);
-            signal("hello otherSignal");
-
-            expect(otherSignal()).to.equal("hello otherSignal");
-        });
-
-        it("should reflect already the new value when the change occurred", function (done) {
-            signal.notify(function () {
-                expect(signal()).to.equal("What up?");
-                done();
-            });
-            signal("What up?");
-        });
-
-        it("should not trigger if the new value and the old value are both primitives and equal", function () {
-            var listener = sinon.spy();
-
-            signal.notify(listener);
-            signal(undefined);
-            signal(true);
-            signal(true);
-            signal("hi");
-            signal("hi");
-            signal(0);
-            signal(0);
-
-            expect(listener).to.have.been.calledThrice;
-        });
-
-        it("should trigger every time a non-primitive value is passed", function () {
-            var listener = sinon.spy(),
-                arr = [],
-                func = function () {},
-                regex = /asd/,
-                obj = {};
-
-            signal.notify(listener);
-            signal(obj);
-            signal(obj);
-            signal(arr);
-            signal(arr);
-            signal(func);
-            signal(func);
-            signal(regex);
-            signal(regex);
-
-            expect(listener.callCount).to.equal(8);
-        });
-
-        it("should be chainable", function () {
-            expect(signal.notify(function () {})).to.equal(signal);
-        });
-
-    });
-
-    describe(".unnotify(listener)", function () {
-
-        it("should stop subscribeing the given listener", function () {
-            var a = sinon.spy(),
-                b = sinon.spy();
-
-            signal.notify(a);
-            signal.notify(b);
-            signal.unnotify(a);
-            signal.unnotify(b);
-            signal("hello");
-
-            expect(a).to.not.have.been.called;
-            expect(b).to.not.have.been.called;
-        });
-
-        it("should also remove the given signals", function () {
-            var otherSignal1 = new Signal("hi"),
-                otherSignal2 = new Signal("hi");
-
-            signal.notify(otherSignal1);
-            signal.notify(otherSignal2);
-            signal.unnotify(otherSignal1);
-            signal.unnotify(otherSignal2);
-
-            signal("hello");
-            expect(otherSignal1()).to.equal("hi");
-            expect(otherSignal1()).to.equal("hi");
-        });
-
-        it("should not remove other listeners", function () {
-            var a = sinon.spy(),
-                b = sinon.spy();
-
-            signal.notify(a);
-            signal.notify(b);
-            signal.unnotify(a);
-            signal("hello");
-
-            expect(b).to.have.been.called;
-        });
-
-        it("should do nothing if the supplied listener has never been added", function () {
-            expect(function () {
-                signal.unnotify(function () {});
-            }).to.not.throw();
-        });
-
-        it("should be possible to call unsubscribe on a signal after it has been disposed", function () {
-            var a = sinon.spy();
-
-            signal.notify(a);
-            signal.dispose();
-            signal.unnotify(a);
-        });
-
-        it("should be chainable", function () {
-            function a() {}
-
-            signal.notify(a);
-
-            expect(signal.unnotify(a)).to.equal(signal);
         });
 
     });
@@ -325,10 +147,6 @@ describe("Signal (instance)", function () {
             signal("hello otherSignal");
 
             expect(otherSignal()).to.equal("hello otherSignal");
-        });
-
-        it("should not be chainable and return the given function (in contrast to .notify())", function () {
-            expect(signal.pipe(otherSignal)).to.equal(otherSignal);
         });
 
         it("should be possible to chain multiple signals", function () {
@@ -348,26 +166,101 @@ describe("Signal (instance)", function () {
             expect(anotherSignal()).to.equal(2);
         });
 
+        it("should reflect already the new value when the change occurred", function (done) {
+            signal.pipe(function () {
+                expect(signal()).to.equal("What up?");
+                done();
+            });
+            signal("What up?");
+        });
+
+        it("should not trigger if the new value and the old value are both primitives and equal", function () {
+            var listener = sinon.spy();
+
+            signal.pipe(listener);
+            signal(undefined);
+            signal(true);
+            signal(true);
+            signal("hi");
+            signal("hi");
+            signal(0);
+            signal(0);
+
+            expect(listener).to.have.been.calledThrice;
+        });
+
+        it("should trigger every time a non-primitive value is passed", function () {
+            var listener = sinon.spy();
+            var arr = [];
+            var func = function () {};
+            var regex = /asd/;
+            var obj = {};
+
+            signal.pipe(listener);
+            signal(obj);
+            signal(obj);
+            signal(arr);
+            signal(arr);
+            signal(func);
+            signal(func);
+            signal(regex);
+            signal(regex);
+
+            expect(listener.callCount).to.equal(8);
+        });
+
     });
+    
+    describe(".unpipe(listener)", function () {
 
-    /*describe(".trigger()", function () {
+        it("should stop notifying the given listener", function () {
+            var a = sinon.spy();
+            var b = sinon.spy();
 
-        it("should manually notify all listeners", function () {
+            signal.pipe(a);
+            signal.pipe(b);
+            signal.unpipe(a);
+            signal.unpipe(b);
+            signal("hello");
+
+            expect(a).to.not.have.been.called;
+            expect(b).to.not.have.been.called;
+        });
+
+        it("should not remove other listeners", function () {
+            var a = sinon.spy();
+            var b = sinon.spy();
+
+            signal.pipe(a);
+            signal.pipe(b);
+            signal.unpipe(a);
+            signal("hello");
+
+            expect(b).to.have.been.called;
+        });
+
+        it("should do nothing if the supplied listener has never been added", function () {
+            expect(function () {
+                signal.unpipe(function () {});
+            }).to.not.throw();
+        });
+
+        it("should be possible to call unpipe() on a signal after it has been disposed", function () {
             var a = sinon.spy();
 
-            signal("hi");
-            signal.notify(a);
-            signal.trigger();
-
-            expect(a).to.have.been.calledOnce;
-            expect(a).to.have.been.calledWith("hi", "hi", signal);
+            signal.pipe(a);
+            signal.dispose();
+            signal.unpipe(a);
         });
 
-        it("should be chainable", function () {
-            expect(signal.trigger()).to.equal(signal);
+        it("should be possible to unpipe multiple signals", function () {
+            var otherSignal = new Signal();
+
+            signal.pipe(otherSignal);
+            expect(signal.unpipe(otherSignal)).to.equal(otherSignal);
         });
 
-    });*/
+    });
 
     describe(".dispose()", function () {
 
@@ -381,10 +274,11 @@ describe("Signal (instance)", function () {
         });
 
         it("should remove all listeners", function () {
-            var a = sinon.spy(),
-                b = sinon.spy();
+            var a = sinon.spy();
+            var b = sinon.spy();
 
-            signal.notify(a, b);
+            signal.pipe(a);
+            signal.pipe(b);
             signal.dispose();
             signal(true);
 
