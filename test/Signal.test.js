@@ -135,6 +135,35 @@ describe("Signal (instance)", function () {
 
     });
 
+    describe(".readOnly", function () {
+
+        it("should be false by default", function () {
+            expect(signal.readOnly).to.equal(false);
+        });
+        
+        describe("when set to true", function () {
+            
+            beforeEach(function () {
+                signal.readOnly = true; 
+            });
+            
+            it("should not be possible to set the value by invoking the signal", function () {
+                signal("new value");
+                expect(signal()).to.equal(undefined);
+            });
+
+            it("should still be possible to pipe a value to the signal", function () {
+               var otherSignal = new Signal();
+
+                otherSignal.pipe(signal);
+                otherSignal("new value");
+                expect(signal()).to.equal("new value");
+            });
+            
+        });
+        
+    });
+
     describe(".pipe(listener)", function () {
         var otherSignal;
 
