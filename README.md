@@ -1,4 +1,4 @@
-![alamid-signal](https://raw.githubusercontent.com/peerigon/alamid-signal/master/img/signal-icon.svg)
+![alamid-signal](img/signal-icon.svg)
 
 alamid-signal
 =============
