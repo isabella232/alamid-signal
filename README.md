@@ -1,4 +1,4 @@
-![alamid-signal](http://localhost:3000/signal-icon.svg)
+![alamid-signal](/peerigon/alamid-signal/tree/master/img/signal-icon.svg)
 
 alamid-signal
 =============
@@ -41,15 +41,15 @@ Why using signals?
 
 Signals are like tiny `EventEmitter`s that only emit `change`-events. They allow you to write your code in a reactive, flow-based style. With signals you can write black-box components that take input signals, do transformations on the value and return output signals.
 
-![sketch-1](http://localhost:3000/signal-sketch-1.svg)
+![sketch-1](/peerigon/alamid-signal/tree/master/img/signal-sketch-1.svg)
 
 --
 
-![sketch-2](http://localhost:3000/signal-sketch-2.svg)
+![sketch-2](/peerigon/alamid-signal/tree/master/img/signal-sketch-2.svg)
 
 --
 
-![sketch-3](http://localhost:3000/signal-sketch-3.svg)
+![sketch-3](/peerigon/alamid-signal/tree/master/img/signal-sketch-3.svg)
 
 With all these isolated and well-tested black-box components, you can build up your application just by wiring the signals together.
 
@@ -211,7 +211,3 @@ License
 ------------------------------------------------------------------------
 
 MIT
-
-
-
-
